@@ -16,7 +16,7 @@ import BookingsPage from './pages/BookingsPage.jsx';
 import BookingPage from './pages/BookingPage.jsx';
 
 
-axios.defaults.baseURL =import.meta.env.VITE_BACKEND_URL;
+axios.defaults.baseURL = 'http://localhost:4000/';
 axios.defaults.withCredentials = true;
 
 

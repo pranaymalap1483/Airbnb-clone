@@ -9,7 +9,9 @@ const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const fs = require('fs');
-const multer = require('multer')
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+
 
 require ('dotenv').config();
 const app = express();
@@ -17,6 +19,11 @@ const app = express();
 const jwtSecret = 'pfhfhgoadtrdrsjkanpojpadaew';
 const bcryptSalt = bcrypt.genSaltSync(10);
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 mongoose.connect(process.env.MONGO_URL);
 
@@ -34,7 +41,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
     credentials:true,
-    origin: process.env.FRONTEND_URL ,
+    origin:" http://localhost:5173" ,
 }));
 app.use('/uploads', express.static(__dirname+'/uploads'));
 app.get('/test',(req,res) =>{
@@ -116,18 +123,33 @@ app.post('/upload-by-link',async(req,res)=>{
 })
 
 const photosMiddleware = multer({dest:'uploads/'});
-app.post('/upload',photosMiddleware.array('photos,100'),(req,res)=>{
-    const uploadedFiles =  [];
-    for(let i=0; i < req.files.length; i++) {
-        const {path,originalname} = req.files[i];
-      const parts =  originalname.split('.');
-      const ext = parts[parts.length - 1];
-        const newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
-        uploadedFiles.push(newPath.replace('uploads/',''));
-    } 
-  res.json(uploadedFiles);
-});
+app.post('/upload', photosMiddleware.array('photos', 10), async (req, res) => {
+    try {
+      const promises = req.files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.path); // Upload to Cloudinary
+        return result.secure_url; // Get the secure URL
+      });
+  
+      const uploadedFiles = await Promise.all(promises);
+      res.json({ uploadedFiles });
+    } catch (error) {
+      res.status(500).json({ error: 'Error uploading to Cloudinary' });
+    }
+  });
+  
+// const photosMiddleware = multer({dest:'uploads/'});
+// app.post('/upload',photosMiddleware.array('photos',100),(req,res)=>{
+//     const uploadedFiles =  [];
+//     for(let i=0; i < req.files.length; i++) {
+//         const {path,originalname} = req.files[i];
+//       const parts =  originalname.split('.');
+//       const ext = parts[parts.length - 1];
+//         const newPath = path + '.' + ext;
+//         fs.renameSync(path, newPath);
+//         uploadedFiles.push(newPath.replace('uploads/',''));
+//     } 
+//   res.json(uploadedFiles);
+// });
 
 app.post('/places', (req,res) =>{
     const {token} = req.cookies;

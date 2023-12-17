@@ -1,11 +1,18 @@
-export default function PlaceImg({place,index=0,className=null}) {
-    if (!place.photos?.length) {
-        return '';
+// export default function PlaceImg({place}) {
+//     return(
+//         <>
+//         <img src={place?.photos[0]} className="" alt="" />
+//         </>
+//     )
+   
+// }
+
+export default function PlaceImg({ place }) {
+    console.log(place);
+    if (!place || !place.photos || place.photos.length === 0) {
+       return null; 
     }
-    if(!className) {
-        className = 'object-cover';
-    }
-    return(
-        <img className={className} src={'https://pranay-airbnb-clone.onrender.com'+place.photos[index]} alt="" />
-    );
-}
+    return (
+       <img src={place.photos[0]} className="w-32 h-32 object-cover" alt="place image"/>
+ );
+ }
