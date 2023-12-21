@@ -16,7 +16,7 @@ import BookingsPage from './pages/BookingsPage.jsx';
 import BookingPage from './pages/BookingPage.jsx';
 
 
-axios.defaults.baseURL = 'http://localhost:4000/';
+axios.defaults.baseURL = 'https://backend-code-t0y1.onrender.com';
 axios.defaults.withCredentials = true;
 
 
