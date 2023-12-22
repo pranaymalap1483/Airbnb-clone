@@ -46,7 +46,7 @@ app.use(express.json());
 app.use(
   cors({
     credentials: true,
-    origin: " http://localhost:5173",
+    origin: " https://lively-marzipan-5d2ead.netlify.app",
   })
 );
 app.use("/uploads", express.static(__dirname + "/uploads"));
